@@ -15,6 +15,21 @@ with open('words.txt') as f:
 import random
 
 
+def main():
+    print('Game has started.')
+    while True:
+        tries = 5
+        word,blanks = get_word(words)
+        end = False
+        while end == False:
+            print_current(blanks, tries)
+            blanks,tries,end = get_guess(word,blanks,tries,end)
+        if input('play again? (y/n)') != 'y':
+            end = False
+            break
+    print('Thanks for playing Hangman!')
+
+
 def get_word(list):
     min = int(input('Minimum length?'))
     blanks = []
@@ -22,46 +37,50 @@ def get_word(list):
         r = random.randrange(0,len(list))
         if len(list[r])>=min:
             for k in range(len(list[r])):
-                blanks+=['_']
+                blanks+=['-']
             return list[r],blanks
 
-def get_guess(word,blanks,tries):
+def get_guess(word,blanks,tries,end):
     letter = input("What letter do you want to try? ")
-    #print(guess)
     correct = test_guess(word,letter)
 
     if (correct):
         print('Good Guess')
-        guesses = fill_blanks(word,blanks,letter)
+        fill_blanks(word,blanks,letter)
     else:
-        guesses = ''
         print('Sorry! There are no ' + letter + ' letters in the secret word.')
         tries-=1
-    win_or_lose(word, guesses,tries)
+    end = win_or_lose(word,blanks,tries,end)
+    return blanks,tries,end
 
-    return
-
-def win_or_lose(word,guesses,tries):
+def win_or_lose(word,blanks,tries,end):
     win = len(word)
     for k in range(len(word)):
-        if guesses[k] == word[k]:
+        if blanks[k] == word[k]:
             win -= 1
             if win == 0:
                 print("You Win!")
+                end = True
     if win != 0 and tries == 0:
         print("You Lose! :(")
+        print ('The secret word was: ',word)
+        end = True
+    return end
 
-
+def print_current(blanks,tries):
+    display = ''
+    for k in range(len(blanks)):
+        display += blanks[k]
+    print(display)
+    print('You have ',tries,' guesses left.')
 
 
 def fill_blanks(word,blanks,letter):
 
     for k in range(len(word)):
-        if blanks[k] == '_':
+        if blanks[k] == '-':
             if letter == word[k]:
                 blanks[k] = letter
-
-    print(str(blanks))
     return blanks
 
 
@@ -73,14 +92,7 @@ def test_guess(word,letter):
     return False
 
 
-def main():
-    print('Game has started.')
-    tries = 5
-    word,blanks = get_word(words)
-    print(word,blanks)
-    while True:
-        get_guess(word,blanks,tries)
-        print
+
 
 
 
